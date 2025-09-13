@@ -1,50 +1,49 @@
-Clinic Booking System Database
-Project Objective
+# Clinic Booking System Database – README
 
-The goal of this project is to design and implement a full-featured relational database using MySQL for a clinic environment. The database supports:
+## Project Objective
+The goal of this project is to **design and implement a full-featured relational database** using MySQL for a clinic environment. The database supports:
 
-Patient management
+- Patient management  
+- Doctor scheduling  
+- Appointments and consultations  
+- Prescriptions and medications  
+- Billing and payments  
+- Staff management  
+- Lab tests and results  
 
-Doctor scheduling
+This aligns with the assignment instructions: a **real-world use case**, **well-structured tables**, proper **constraints**, and **relationships**.
 
-Appointments and consultations
+---
 
-Prescriptions and medications
+## Database Overview
 
-Billing and payments
-
-Staff management
-
-Lab tests and results
-
-This aligns with the assignment instructions: a real-world use case, well-structured tables, proper constraints, and relationships.
-
-Database Overview
-1. Database Name
+### 1. Database Name
+```sql
 CREATE DATABASE ClinicDB;
 USE ClinicDB;
 
-2. Tables and Relationships
-Table	Purpose	Key Relationships
-Patients	Stores patient personal details	PatientID is PK, linked to Appointments, Invoices
-Doctors	Stores doctor personal info	DoctorID is PK, linked to Appointments, DoctorSchedules, DoctorTimeOff
-Specialties	Doctor specialties	SpecialtyID is PK, linked to Doctors
-Rooms	Clinic rooms for appointments	RoomID is PK, linked to Appointments and StaffAssignments
-Appointments	Links patients to doctors, rooms, and schedules	AppointmentID is PK, FKs to Patients, Doctors, Rooms
-Medications	Master list of drugs	MedicationID is PK, linked via PrescriptionMedications
-Prescriptions	One per appointment	PrescriptionID is PK, FK to Appointments
-PrescriptionMedications	Many-to-many link between prescriptions and medications	Composite PK (PrescriptionID, MedicationID)
-Invoices	Billing records	InvoiceID is PK, FKs to Patients and optionally Appointments
-InvoiceItems	Line items for invoices	FK to Invoices
-Payments	Tracks payments against invoices	FK to Invoices
-Staff	Non-doctor employees	StaffID is PK, can be assigned to rooms via StaffAssignments
-StaffAssignments	Staff room or duty assignments	FKs to Staff and Rooms
-LabTests	Master list of lab tests	LabTestID is PK, linked via LabOrderItems
-LabOrders	Lab tests ordered per appointment	LabOrderID is PK, FK to Appointments
-LabOrderItems	Many-to-many link between lab orders and tests	Composite PK (LabOrderID, LabTestID)
-LabResults	Stores test results per order	FKs to LabOrderItems
-DoctorSchedules	Weekly availability	DoctorID FK, defines days and times
-DoctorTimeOff	Specific unavailable dates	DoctorID FK
+| Table                       | Purpose                                                 | Key Relationships                                                              |
+| --------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **Patients**                | Stores patient personal details                         | `PatientID` is PK, linked to `Appointments`, `Invoices`                        |
+| **Doctors**                 | Stores doctor personal info                             | `DoctorID` is PK, linked to `Appointments`, `DoctorSchedules`, `DoctorTimeOff` |
+| **Specialties**             | Doctor specialties                                      | `SpecialtyID` is PK, linked to `Doctors`                                       |
+| **Rooms**                   | Clinic rooms for appointments                           | `RoomID` is PK, linked to `Appointments` and `StaffAssignments`                |
+| **Appointments**            | Links patients to doctors, rooms, and schedules         | `AppointmentID` is PK, FKs to `Patients`, `Doctors`, `Rooms`                   |
+| **Medications**             | Master list of drugs                                    | `MedicationID` is PK, linked via `PrescriptionMedications`                     |
+| **Prescriptions**           | One per appointment                                     | `PrescriptionID` is PK, FK to `Appointments`                                   |
+| **PrescriptionMedications** | Many-to-many link between prescriptions and medications | Composite PK (`PrescriptionID`, `MedicationID`)                                |
+| **Invoices**                | Billing records                                         | `InvoiceID` is PK, FKs to `Patients` and optionally `Appointments`             |
+| **InvoiceItems**            | Line items for invoices                                 | FK to `Invoices`                                                               |
+| **Payments**                | Tracks payments against invoices                        | FK to `Invoices`                                                               |
+| **Staff**                   | Non-doctor employees                                    | `StaffID` is PK, can be assigned to rooms via `StaffAssignments`               |
+| **StaffAssignments**        | Staff room or duty assignments                          | FKs to `Staff` and `Rooms`                                                     |
+| **LabTests**                | Master list of lab tests                                | `LabTestID` is PK, linked via `LabOrderItems`                                  |
+| **LabOrders**               | Lab tests ordered per appointment                       | `LabOrderID` is PK, FK to `Appointments`                                       |
+| **LabOrderItems**           | Many-to-many link between lab orders and tests          | Composite PK (`LabOrderID`, `LabTestID`)                                       |
+| **LabResults**              | Stores test results per order                           | FKs to `LabOrderItems`                                                         |
+| **DoctorSchedules**         | Weekly availability                                     | `DoctorID` FK, defines days and times                                          |
+| **DoctorTimeOff**           | Specific unavailable dates                              | `DoctorID` FK                                                                  |
+
 3. Key Design Principles
 
 Normalization
@@ -100,15 +99,17 @@ Staff & Assignments: Receptionists, nurses, lab technicians assigned to rooms
 Doctor Schedules & Time Off: Weekly availability and exceptions
 
 Verification queries include:
-
 SELECT * FROM Patients;
-
-Full join queries to see patient → appointment → prescription → medication
-
-Doctor schedules with status column for missing schedules
-
-Lab orders with results
-
+-- Full join query to see patient → appointment → prescription → medication
+SELECT p.PatientID, CONCAT(p.FirstName,' ',p.LastName) AS PatientName,
+       a.AppointmentID, d.DoctorID, CONCAT(d.FirstName,' ',d.LastName) AS DoctorName,
+       pr.PrescriptionID, m.Name AS MedicationName
+FROM Patients p
+JOIN Appointments a ON p.PatientID = a.PatientID
+JOIN Doctors d ON a.DoctorID = d.DoctorID
+LEFT JOIN Prescriptions pr ON a.AppointmentID = pr.AppointmentID
+LEFT JOIN PrescriptionMedications pm ON pr.PrescriptionID = pm.PrescriptionID
+LEFT JOIN Medications m ON pm.MedicationID = m.MedicationID;
 5. Implementation Highlights
 
 All relationships enforced with FKs
@@ -123,7 +124,7 @@ Sample inserts provide realistic data for testing queries
 
 SQL file containing:
 
-CREATE DATABASE ClinicDB;
+CREATE DATABASE Clinic_db;
 
 CREATE TABLE statements with constraints
 
