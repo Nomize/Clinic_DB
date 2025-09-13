@@ -206,7 +206,7 @@ SELECT
     p.FirstName AS PatientFirstName,
     p.LastName AS PatientLastName,
     a.AppointmentID,
-    a.AppointmentDate,
+    a.AppointmentDateTime,
     pr.PrescriptionID,
     pr.Notes AS PrescriptionNotes,
     m.Name AS MedicationName,
@@ -217,7 +217,7 @@ JOIN Appointments a ON p.PatientID = a.PatientID
 JOIN Prescriptions pr ON a.AppointmentID = pr.AppointmentID
 JOIN PrescriptionMedications pm ON pr.PrescriptionID = pm.PrescriptionID
 JOIN Medications m ON pm.MedicationID = m.MedicationID
-ORDER BY p.PatientID, a.AppointmentDate;
+ORDER BY p.PatientID, a.AppointmentDateTime;
 
 -- Full clinic view with all patient status, even if no appointment or prescription yet
 SELECT 
